@@ -14,6 +14,12 @@ describe Valium do
     it { should eq (1..1000).to_a }
   end
 
+  context 'with multiple keys' do
+    subject { Person[:id, :last_name] }
+    it { should have(1000).elements }
+    it { should eq (1..1000).map {|n| [n, "Number#{n}"]}}
+  end
+
   context 'with a datetime column' do
     subject { Person[:created_at] }
     it { should have(1000).datetimes }
@@ -30,6 +36,12 @@ describe Valium do
     subject { Person.where(:id => [1,500,1000])[:last_name] }
     it { should have(3).last_names }
     it { should eq ['Number1', 'Number500', 'Number1000'] }
+  end
+
+  context 'with a scope and multiple keys' do
+    subject { Person.where(:id => [1,500,1000])[:last_name, :id, :extra_info] }
+    it { should have(3).elements }
+    it { should eq [1,500,1000].map {|n| ["Number#{n}", n, {:a_key => "Value Number #{n}"}]}}
   end
 
   context 'with a relation array index' do

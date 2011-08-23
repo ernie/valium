@@ -6,24 +6,25 @@ module Valium
 
     if ActiveRecord::VERSION::MINOR == 0 # We need to use the old deserialize code
 
-      def [](attr_name)
-        attr_name = attr_name.to_s
-        column = columns_hash[attr_name]
-        if column.text? && serialized_attributes.include?(attr_name)
-          serialized_klass = serialized_attributes[attr_name]
+      def [](*attr_names)
+        attr_names = attr_names.map(&:to_s)
+
+        results = connection.select_rows(
+          select(attr_names.map {|n| arel_table[n]}).to_sql
+        ).map! do |values|
+          values.each_with_index do |value, index|
+            if value.nil? || !columns_hash[attr_names[index]]
+              # Don't modify
+            elsif serialized_attributes[attr_names[index]]
+              values[index] = deserialize_value(value, serialized_attributes[attr_names[index]])
+            else
+              values[index] = columns_hash[attr_names[index]].type_cast(value)
+            end
+          end
+          values
         end
 
-        connection.select_values(
-          select(arel_table[attr_name]).to_sql
-        ).map! do |value|
-          if value.nil? || !column
-            value
-          elsif serialized_klass
-            deserialize_value(value, serialized_klass)
-          else
-            column.type_cast(value)
-          end
-        end
+        attr_names.size > 1 ? results : results.flatten!
       end
 
       def deserialize_value(value, klass)
@@ -42,32 +43,33 @@ module Valium
 
     else # we're on 3.1+, yay for coder.load!
 
-      def [](attr_name)
-        attr_name = attr_name.to_s
-        column = columns_hash[attr_name]
-        if column.text? && serialized_attributes.include?(attr_name)
-          coder = serialized_attributes[attr_name]
+      def [](*attr_names)
+        attr_names = attr_names.map(&:to_s)
+
+        results = connection.select_rows(
+          select(attr_names.map {|n| arel_table[n]}).to_sql
+        ).map! do |values|
+          values.each_with_index do |value, index|
+            if value.nil? || !columns_hash[attr_names[index]]
+              # Don't modify
+            elsif serialized_attributes[attr_names[index]]
+              values[index] = serialized_attributes[attr_names[index]].load(value)
+            else
+              values[index] = columns_hash[attr_names[index]].type_cast(value)
+            end
+          end
+          values
         end
 
-        connection.select_values(
-          select(arel_table[attr_name]).to_sql
-        ).map! do |value|
-          if value.nil? || !column
-            value
-          elsif coder
-            coder.load(value)
-          else
-            column.type_cast(value)
-          end
-        end
+        attr_names.size > 1 ? results : results.flatten!
       end
 
     end # Minor version check
 
     module Relation
       def [](*args)
-        if args.size == 1 && [String, Symbol].any? {|c| c === args.first}
-          scoping { @klass[args.first] }
+        if args.size > 0 && args.all? {|a| String === a || Symbol === a}
+          scoping { @klass[*args] }
         else
           to_a[*args]
         end
