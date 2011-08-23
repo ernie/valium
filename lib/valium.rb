@@ -6,28 +6,7 @@ module Valium
 
     if ActiveRecord::VERSION::MINOR == 0 # We need to use the old deserialize code
 
-      def [](*attr_names)
-        attr_names = attr_names.map(&:to_s)
-
-        results = connection.select_rows(
-          select(attr_names.map {|n| arel_table[n]}).to_sql
-        ).map! do |values|
-          values.each_with_index do |value, index|
-            if value.nil? || !columns_hash[attr_names[index]]
-              # Don't modify
-            elsif serialized_attributes[attr_names[index]]
-              values[index] = deserialize_value(value, serialized_attributes[attr_names[index]])
-            else
-              values[index] = columns_hash[attr_names[index]].type_cast(value)
-            end
-          end
-          values
-        end
-
-        attr_names.size > 1 ? results : results.flatten!
-      end
-
-      def deserialize_value(value, klass)
+      def valium_deserialize(value, klass)
         if value.is_a?(String) && value =~ /^---/
           result = YAML::load(value) rescue value
           if result.nil? || result.is_a?(klass)
@@ -43,28 +22,55 @@ module Valium
 
     else # we're on 3.1+, yay for coder.load!
 
-      def [](*attr_names)
-        attr_names = attr_names.map(&:to_s)
-
-        results = connection.select_rows(
-          select(attr_names.map {|n| arel_table[n]}).to_sql
-        ).map! do |values|
-          values.each_with_index do |value, index|
-            if value.nil? || !columns_hash[attr_names[index]]
-              # Don't modify
-            elsif serialized_attributes[attr_names[index]]
-              values[index] = serialized_attributes[attr_names[index]].load(value)
-            else
-              values[index] = columns_hash[attr_names[index]].type_cast(value)
-            end
-          end
-          values
-        end
-
-        attr_names.size > 1 ? results : results.flatten!
+      def valium_deserialize(value, coder)
+        coder.load(value)
       end
 
     end # Minor version check
+
+    def [](*attr_names)
+      attr_names = attr_names.map(&:to_s)
+
+      if attr_names.size > 1
+        valium_select_multiple(attr_names)
+      else
+        valium_select_one(attr_names.first)
+      end
+    end
+
+    def valium_select_multiple(attr_names)
+      columns = attr_names.map {|n| columns_hash[n]}
+      coders  = attr_names.map {|n| serialized_attributes[n]}
+
+      connection.select_rows(
+        select(attr_names.map {|n| arel_table[n]}).to_sql
+      ).map! do |values|
+        values.each_with_index do |value, index|
+          values[index] = valium_cast(value, columns[index], coders[index])
+        end
+      end
+    end
+
+    def valium_select_one(attr_name)
+      column = columns_hash[attr_name]
+      coder  = serialized_attributes[attr_name]
+
+      connection.select_rows(
+        select(arel_table[attr_name]).to_sql
+      ).map! do |values|
+        valium_cast(values[0], column, coder)
+      end
+    end
+
+    def valium_cast(value, column, coder_or_klass)
+      if value.nil? || !column
+        value
+      elsif coder_or_klass
+        valium_deserialize(value, coder_or_klass)
+      else
+        column.type_cast(value)
+      end
+    end
 
     module Relation
       def [](*args)
