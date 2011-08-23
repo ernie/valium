@@ -5,19 +5,19 @@ describe Valium do
   context 'with a symbol key' do
     subject { Person[:id] }
     it { should have(1000).ids }
-    it { should eq (1..1000).to_a }
+    it { should eq((1..1000).to_a) }
   end
 
   context 'with a string key' do
     subject { Person['id'] }
     it { should have(1000).ids }
-    it { should eq (1..1000).to_a }
+    it { should eq((1..1000).to_a) }
   end
 
   context 'with multiple keys' do
     subject { Person[:id, :last_name] }
     it { should have(1000).elements }
-    it { should eq (1..1000).map {|n| [n, "Number#{n}"]}}
+    it { should eq((1..1000).map {|n| [n, "Number#{n}"]})}
   end
 
   context 'with a datetime column' do
