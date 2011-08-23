@@ -1,0 +1,2 @@
+module ValiumHelper
+end
