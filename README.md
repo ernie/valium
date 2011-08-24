@@ -15,16 +15,16 @@ just the values you're interested in seeing.
 You can select a single value...
 
 ```ruby
-    Post.where(:published => true)[:title]
-    # => ["First Post", "Another Awesome Post", ...]
+Post.where(:published => true)[:title]
+# => ["First Post", "Another Awesome Post", ...]
 ```
 
 ... or several ...
 
 ```ruby
-    Employee.where(:title => 'Sr. Monkey Wrangler')[:first_name, :last_name, :hired_at]
-    # => [["Ernie", "Miller", 2009-09-21 08:00:00 -0400],
-          ["Herb", "Myers", 2002-02-13 09:00:00 -0400], ...]
+Employee.where(:title => 'Sr. Monkey Wrangler')[:first_name, :last_name, :hired_at]
+# => [["Ernie", "Miller", 2009-09-21 08:00:00 -0400],
+      ["Herb", "Myers", 2002-02-13 09:00:00 -0400], ...]
 ```
 
 Values returned by Valium will be the data types you'd expect, just
@@ -32,12 +32,12 @@ as though you instantiated the ActiveRecord object and used the
 accessor. This includes serialized attributes:
 
 ```ruby
-    class Animal < ActiveRecord::Base
-      serialize :extra_info
-    end
-    
-    Animal.where(:genus => 'felis')[:species, :extra_info]
-    [["catus", {:domestic => true}], ["lolcatus", {:can_has_cheezburger => true}], ...]
+class Animal < ActiveRecord::Base
+  serialize :extra_info
+end
+
+Animal.where(:genus => 'felis')[:species, :extra_info]
+# => [["catus", {:domestic => true}], ["lolcatus", {:can_has_cheezburger => true}], ...]
 ```
 
 ## Why would I use this?
@@ -46,18 +46,18 @@ It's not uncommon for Rails apps to need only one or two attributes
 from a bunch of ActiveRecord objects. They'll have code like this:
 
 ```ruby
-    MyModel.some_scope.map(&:id)
+MyModel.some_scope.map(&:id)
 ```
 
 Or, if the developer is a bit more clever about saving memory, he
 might use code like this:
 
 ```ruby
-    MyModel.some_scope.select(:id).map(&:id)
+MyModel.some_scope.select(:id).map(&:id)
 ```
 
-This helps a good deal, but even if this cuts down on the memory
-usage a bit this way, the truth is that no matter what we try,
+This helps a good deal with memory usage, but even if we cut down 
+on the memory usage a bit, the truth is that no matter what we try,
 **instantiating ActiveRecord objects is slow.**
 
 This is because ActiveRecord provides all kinds of awesome stuff,
