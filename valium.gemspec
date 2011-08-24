@@ -7,9 +7,15 @@ Gem::Specification.new do |s|
   s.version     = Valium::VERSION
   s.authors     = ["Ernie Miller"]
   s.email       = ["ernie@metautonomo.us"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.homepage    = "http://github.com/ernie/valium"
+  s.summary     = %q{
+    Access attribute values directly, without instantiating ActiveRecord objects.
+  }
+  s.description = %q{
+    Suffering from ActiveRecord instantiation anxiety? Try Valium. It
+    saves your CPU and memory for more important things, retrieving
+    just the values you're interested in seeing.
+  }
 
   s.rubyforge_project = "valium"
 
