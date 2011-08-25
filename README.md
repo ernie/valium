@@ -16,6 +16,8 @@ You can select a single value...
 
 ```ruby
 Post.where(:published => true)[:title]
+# - OR -
+Post.where(:published => true).value_of :title
 # => ["First Post", "Another Awesome Post", ...]
 ```
 
@@ -23,6 +25,8 @@ Post.where(:published => true)[:title]
 
 ```ruby
 Employee.where(:title => 'Sr. Monkey Wrangler')[:first_name, :last_name, :hired_at]
+# - OR -
+Employee.where(:title => 'Sr. Monkey Wrangler').value_of :first_name, :last_name, :hired_at
 # => [["Ernie", "Miller", 2009-09-21 08:00:00 -0400],
       ["Herb", "Myers", 2002-02-13 09:00:00 -0400], ...]
 ```
@@ -86,7 +90,7 @@ you're probably mocking me right now:
 I R GENIUS!"
 
 Yeah. It's not rocket science. This is just a quick little
-(seriously, under 100 LOC) gem that provides some intuitive 
+(seriously, around 100 LOC) gem that provides some intuitive 
 syntax around a common pattern and doesn't stomp on any
 existing ActiveRecord functionality. It "just works."
 

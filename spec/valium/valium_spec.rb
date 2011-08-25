@@ -8,6 +8,12 @@ describe Valium do
     it { should eq((1..100).to_a) }
   end
 
+  context 'with value_of syntax' do
+    subject { Person.value_of :id }
+    it { should have(100).ids }
+    it { should eq((1..100).to_a) }
+  end
+
   context 'with a string key' do
     subject { Person['id'] }
     it { should have(100).ids }
@@ -48,6 +54,12 @@ describe Valium do
     subject { Person.where(:id => [1,50,100])[:last_name] }
     it { should have(3).last_names }
     it { should eq ['Number1', 'Number50', 'Number100'] }
+  end
+
+  context 'with a scope and value_of syntax' do
+    subject { Person.where(:id => [1,50,100]).value_of :id }
+    it { should have(3).ids }
+    it { should eq [1,50,100] }
   end
 
   context 'with a scope, an alternate primary key, and an :id select' do
