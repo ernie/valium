@@ -82,8 +82,9 @@ module Valium
         if args.size > 0 && args.all? {|a| String === a || Symbol === a}
           args.map! do |attr_name|
             attr_name = attr_name.to_s
-            attr_name == 'id' ? primary_key : attr_name
+            attr_name == 'id' ? @klass.primary_key : attr_name
           end
+
           if loaded? && (empty? || args.all? {|a| first.attributes.has_key? a})
             to_a.map {|record| args.map {|a| record[a]}}
           else
