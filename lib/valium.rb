@@ -28,8 +28,11 @@ module Valium
 
     end # Minor version check
 
-    def [](*attr_names)
-      attr_names = attr_names.map(&:to_s)
+    def value_of(*attr_names)
+      attr_names.map! do |attr_name|
+        attr_name = attr_name.to_s
+        attr_name == 'id' ? primary_key : attr_name
+      end
 
       if attr_names.size > 1
         valium_select_multiple(attr_names)
@@ -38,12 +41,14 @@ module Valium
       end
     end
 
+    alias :[] :value_of
+
     def valium_select_multiple(attr_names)
       columns = attr_names.map {|n| columns_hash[n]}
       coders  = attr_names.map {|n| serialized_attributes[n]}
 
       connection.select_rows(
-        select(attr_names.map {|n| arel_table[n]}).to_sql
+        except(:select).select(attr_names.map {|n| arel_table[n]}).to_sql
       ).map! do |values|
         values.each_with_index do |value, index|
           values[index] = valium_cast(value, columns[index], coders[index])
@@ -56,7 +61,7 @@ module Valium
       coder  = serialized_attributes[attr_name]
 
       connection.select_rows(
-        select(arel_table[attr_name]).to_sql
+        except(:select).select(arel_table[attr_name]).to_sql
       ).map! do |values|
         valium_cast(values[0], column, coder)
       end
@@ -73,13 +78,23 @@ module Valium
     end
 
     module Relation
-      def [](*args)
+      def value_of(*args)
         if args.size > 0 && args.all? {|a| String === a || Symbol === a}
-          scoping { @klass[*args] }
+          args.map! do |attr_name|
+            attr_name = attr_name.to_s
+            attr_name == 'id' ? primary_key : attr_name
+          end
+          if loaded? && (empty? || args.all? {|a| first.attributes.has_key? a})
+            to_a.map {|record| args.map {|a| record[a]}}
+          else
+            scoping { @klass[*args] }
+          end
         else
           to_a[*args]
         end
       end
+
+      alias :[] :value_of
     end
 
   end # Major version check
