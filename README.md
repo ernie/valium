@@ -85,8 +85,9 @@ objects, in my tests.
 
 Valium will only retrieve columns from the model you are querying against.
 Joined associations may be used to limit the scope of the query, but their
-attribute values can't be selected. There's a bit of discussion on issue #2
-about why this is, if you're interested in reading more.
+attribute values can't be selected. There's a bit of discussion on 
+[issue #2](https://github.com/ernie/valium/issues/2) about why this is, 
+if you're interested in reading more.
 
 ## Conclusion
 
