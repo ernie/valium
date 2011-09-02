@@ -1,4 +1,4 @@
-# Valium
+# Valium [![Build Status](https://secure.travis-ci.org/ernie/valium.png)](http://travis-ci.org/ernie/valium)
 
 Suffering from ActiveRecord instantiation anxiety? Try Valium. It
 saves your CPU and memory for more important things, retrieving

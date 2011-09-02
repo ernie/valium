@@ -1,6 +1,8 @@
 source "http://rubygems.org"
 gemspec
 
+gem 'rake'
+
 rails = ENV['RAILS'] || 'master'
 
 case rails
