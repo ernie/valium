@@ -81,6 +81,13 @@ spent in the deserialization process than with normal attributes,
 Valium can be up to twice as fast as mapping over ActiveRecord
 objects, in my tests.
 
+## Limitations
+
+Valium will only retrieve columns from the model you are querying against.
+Joined associations may be used to limit the scope of the query, but their
+attribute values can't be selected. There's a bit of discussion on issue #2
+about why this is, if you're interested in reading more.
+
 ## Conclusion
 
 You knew everything I mentioned above, already. In fact,
