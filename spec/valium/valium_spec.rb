@@ -41,13 +41,13 @@ describe Valium do
   context 'with an alternate primary key and an :id select' do
     subject { Widget[:id] }
     it { should have(100).ids }
-    it { should eq (1..100).to_a}
+    it { should eq((1..100).to_a)}
   end
 
   context 'with an alternate primary key and an alternate primary key select' do
     subject { Widget[:widget_id] }
     it { should have(100).ids }
-    it { should eq (1..100).to_a}
+    it { should eq((1..100).to_a)}
   end
 
   context 'with a scope' do
