@@ -164,4 +164,10 @@ describe Valium do
     it { should eq Person.first(10) }
   end
 
+  context 'with an association' do
+    subject { Person.first.widgets[:id] }
+    it { should have(10).elements }
+    it { should eq Person.first.widgets.map(&:id) }
+  end
+
 end

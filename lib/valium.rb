@@ -6,6 +6,12 @@ module Valium
 
     if ActiveRecord::VERSION::MINOR == 0 # We need to use the old deserialize code
 
+      CollectionProxy = ActiveRecord::Associations::AssociationProxy
+
+      CollectionProxy.class_eval do
+        delegate :scoping, :klass, :to => :scoped
+      end
+
       def valium_deserialize(value, klass)
         if value.is_a?(String) && value =~ /^---/
           result = YAML::load(value) rescue value
@@ -21,6 +27,8 @@ module Valium
       end
 
     else # we're on 3.1+, yay for coder.load!
+
+      CollectionProxy = ActiveRecord::Associations::CollectionProxy
 
       def valium_deserialize(value, coder)
         coder.load(value)
@@ -77,18 +85,18 @@ module Valium
       end
     end
 
-    module Relation
+    module ValueOf
       def value_of(*args)
         if args.size > 0 && args.all? {|a| String === a || Symbol === a}
           args.map! do |attr_name|
             attr_name = attr_name.to_s
-            attr_name == 'id' ? @klass.primary_key : attr_name
+            attr_name == 'id' ? klass.primary_key : attr_name
           end
 
           if loaded? && (empty? || args.all? {|a| first.attributes.has_key? a})
             to_a.map {|record| args.map {|a| record[a]}}
           else
-            scoping { @klass[*args] }
+            scoping { klass[*args] }
           end
         else
           to_a[*args]
@@ -102,4 +110,5 @@ module Valium
 end
 
 ActiveRecord::Base.extend Valium
-ActiveRecord::Relation.send :include, Valium::Relation
+ActiveRecord::Relation.send :include, Valium::ValueOf
+Valium::CollectionProxy.send :include, Valium::ValueOf
