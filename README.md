@@ -15,8 +15,6 @@ just the values you're interested in seeing.
 You can select a single value...
 
 ```ruby
-Post.where(:published => true)[:title]
-# - OR -
 Post.where(:published => true).value_of :title
 # => ["First Post", "Another Awesome Post", ...]
 ```
@@ -24,9 +22,7 @@ Post.where(:published => true).value_of :title
 ... or several ...
 
 ```ruby
-Employee.where(:title => 'Sr. Monkey Wrangler')[:first_name, :last_name, :hired_at]
-# - OR -
-Employee.where(:title => 'Sr. Monkey Wrangler').value_of :first_name, :last_name, :hired_at
+Employee.where(:title => 'Sr. Monkey Wrangler').values_of :first_name, :last_name, :hired_at
 # => [["Ernie", "Miller", 2009-09-21 08:00:00 -0400],
       ["Herb", "Myers", 2002-02-13 09:00:00 -0400], ...]
 ```
@@ -40,7 +36,7 @@ class Animal < ActiveRecord::Base
   serialize :extra_info
 end
 
-Animal.where(:genus => 'felis')[:species, :extra_info]
+Animal.where(:genus => 'felis').values_of :species, :extra_info
 # => [["catus", {:domestic => true}], ["lolcatus", {:can_has_cheezburger => true}], ...]
 ```
 

@@ -49,7 +49,7 @@ module Valium
       end
     end
 
-    alias :[] :value_of
+    alias :values_of :value_of
 
     def valium_select_multiple(attr_names)
       columns = attr_names.map {|n| columns_hash[n]}
@@ -87,24 +87,20 @@ module Valium
 
     module ValueOf
       def value_of(*args)
-        if args.size > 0 && args.all? {|a| String === a || Symbol === a}
-          args.map! do |attr_name|
-            attr_name = attr_name.to_s
-            attr_name == 'id' ? klass.primary_key : attr_name
-          end
+        args.map! do |attr_name|
+          attr_name = attr_name.to_s
+          attr_name == 'id' ? klass.primary_key : attr_name
+        end
 
-          if loaded? && (empty? || args.all? {|a| first.attributes.has_key? a})
-            to_a.map {|record| args.map {|a| record[a]}}
-          else
-            scoping { klass[*args] }
-          end
+        if loaded? && (empty? || args.all? {|a| first.attributes.has_key? a})
+          to_a.map {|record| args.map {|a| record[a]}}
         else
-          to_a[*args]
+          scoping { klass.value_of *args }
         end
       end
-
-      alias :[] :value_of
     end
+
+    alias :values_of :value_of
 
   end # Major version check
 end
