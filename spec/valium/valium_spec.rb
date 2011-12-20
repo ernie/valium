@@ -79,6 +79,9 @@ describe Valium do
     # need another query
     specify { queries_for { subject.value_of :id }.should have(1).query }
 
+    specify { subject.values_of(:id).
+              should eq [1,50,100] }
+
     specify { subject.values_of(:id, :created_at, :extra_info).
               should eq Person.where(:id => [1,50,100]).values_of(:id, :created_at, :extra_info) }
   end
