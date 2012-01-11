@@ -149,5 +149,15 @@ describe Valium do
     it { should have(10).elements }
     it { should eq Person.first.widgets.map(&:id) }
   end
+  
+  context 'with an association after call #collection= for that association' do
+    subject do
+      Person.new do |person|
+        person.widgets = Widget.limit(10)
+      end
+    end
+    
+    specify { subject.widgets.value_of(:id).should == Widget.limit(10).value_of(:id) }
+  end
 
 end

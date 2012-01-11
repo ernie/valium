@@ -93,7 +93,11 @@ module Valium
         end
 
         if loaded? && (empty? || args.all? {|a| first.attributes.has_key? a})
-          to_a.map {|record| args.map {|a| record[a]}}
+          if args.size > 1
+            to_a.map {|record| args.map {|a| record[a]}}
+          else
+            to_a.map {|record| record[args[0]]}
+          end
         else
           scoping { klass.value_of *args }
         end
