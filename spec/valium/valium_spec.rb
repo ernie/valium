@@ -20,6 +20,13 @@ describe Valium do
     it { should eq((1..100).map {|n| [n, "Number#{n}"]})}
   end
 
+  context 'with multiple values defined dynamically by an array' do
+    dynamically_created_attrs_array = [:id, :last_name]
+    subject { Person.values_of dynamically_created_attrs_array }
+    it { should have(100).elements }
+    it { should eq((1..100).map {|n| [n, "Number#{n}"]})}
+  end
+
   context 'with a datetime column' do
     subject { Person.value_of :created_at }
     it { should have(100).datetimes }

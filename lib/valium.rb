@@ -37,7 +37,7 @@ module Valium
     end # Minor version check
 
     def value_of(*attr_names)
-      attr_names.map! do |attr_name|
+      attr_names.flatten.map! do |attr_name|
         attr_name = attr_name.to_s
         attr_name == 'id' ? primary_key : attr_name
       end
