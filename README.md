@@ -77,6 +77,12 @@ spent in the deserialization process than with normal attributes,
 Valium can be up to twice as fast as mapping over ActiveRecord
 objects, in my tests.
 
+## Easily Find where Valium can Help
+
+Ack away to find likely spots in your app where Valium should be injested:
+
+    ack map\\\(\&\\:\\w+\\\)
+
 ## Limitations
 
 Valium will only retrieve columns from the model you are querying against.
